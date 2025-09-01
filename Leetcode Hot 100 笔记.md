@@ -13,6 +13,14 @@
                   .toArray();
   ```
 
+- 直接添加数组：
+
+  ```java
+  List<List<Integer>> result = new ArrayList<>();
+  // 直接添加数组
+  result.add(Arrays.asList(1, 2, 3));
+  ```
+
   
 
 ## 1 两数之和--哈希
@@ -216,13 +224,74 @@ class Solution {
   \end{cases}
   $$
 
-  
 
+题解如下：
 
+```java
+class Solution {
+    public int minDistance(String word1, String word2) {
+        int[][] dp = new int[word1.length() + 1][word2.length() + 1];
+        for (int i = 0; i <= word1.length(); i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= word2.length(); j++) {
+            dp[0][j] = j;
+        }
+        for (int i = 1; i <= word1.length(); i++) {
+            for (int j = 1; j <= word2.length(); j++) {
+                if (word1.charAt(i - 1) == word2.charAt(j - 1))
+                    dp[i][j] = dp[i - 1][j - 1];
+                else {
+                    dp[i][j] = 1 + Math.min(Math.min(dp[i - 1][j], dp[i][j - 1]), dp[i - 1][j - 1]);
+                }
+            }
+        }
+        return dp[word1.length()][word2.length()];
+    }
+}
+```
 
+## 39 组合总和
 
+![image-20250901093617799](assets/image-20250901093617799.png)
 
+### 想法一
 
+先将 `candidates` 数组排序，然后从左到右开始选择，当下标为 `i` 时意味着至少要选一个 `candidates[i]` 元素，并且接下来 `candidates[i]` 是的选择中最小的元素。每当当前和超过 `target` 时则回溯，回溯时可以直接`++i`，这是因为数组是有序递增的，当前出现了 `sum + candidates[i] > target`，不需要尝试比 `candidates[i]` 更靠后的元素，所以可以直接回溯并自增。
+
+题解如下：
+
+```java
+class Solution {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(candidates);
+        List<Integer> tmp = new ArrayList<>();
+        cal(0, 0, candidates, tmp, target, result);
+        return result;
+    }
+
+    public void cal(int pos, int sum, int[] candidates, List<Integer> tmp,
+                           int target, List<List<Integer>> result) {
+        if (sum == target) {
+            List<Integer> tmpList = new ArrayList<>(tmp);
+            result.add(tmpList);
+            return;
+        }
+        if (sum + candidates[pos] > target) {
+            return;
+        }
+
+        for (int i = pos; i < candidates.length; i++) {
+            tmp.add(candidates[i]);
+            sum += candidates[i];
+            cal(i, sum, candidates, tmp, target, result);
+            tmp.remove(tmp.size() - 1);
+            sum -= candidates[i];
+        }
+    }
+}
+```
 
 
 
